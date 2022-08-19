@@ -23,7 +23,8 @@ COPY turbo.json turbo.json
 RUN corepack enable
 # RUN pnpm install -r --offline
 RUN pnpm install -r
-RUN pnpm turbo run build --filter=web...
+RUN pnpm turbo run build --filter=web... &
+RUN sleep 30
 
 FROM node:alpine AS runner
 WORKDIR /app
