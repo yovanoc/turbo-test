@@ -2,27 +2,25 @@ FROM node:alpine AS builder
 RUN apk update
 # Set working directory
 WORKDIR /app
-# RUN yarn global add turbo
-# COPY . .
-# RUN turbo prune --scope=api --docker
-RUN mkdir -p out/json && find . -type f -name package.json -not -path '*/node_modules/*' | xargs -i cp --parents {} ./out/json
-RUN mkdir out/full
-COPY . ./out/full
+RUN yarn global add turbo@canary
+COPY . .
+RUN turbo prune --scope=api --docker
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM node:alpine AS installer
-RUN apk update && apk add git
+RUN apk update
 WORKDIR /app
-COPY --from=builder /app/out/json/ .
-COPY --from=builder /app/out/full/pnpm-lock.yaml ./pnpm-lock.yaml
-# COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=builder /app/out/full/ .
-COPY .gitignore .gitignore
-COPY turbo.json turbo.json
 
+# First install dependencies (as they change less often)
+COPY .gitignore .gitignore
+COPY --from=builder /app/out/json/ .
+COPY --from=builder /app/out/pnpm-*.yaml .
+COPY .npmrc .
 RUN corepack enable
-# RUN pnpm install -r --offline
-RUN pnpm install -r
+RUN pnpm install -r --frozen-lockfile
+
+# Build the project
+COPY --from=builder /app/out/full/ .
 RUN pnpm turbo run build --filter=api...
 
 FROM node:alpine AS runner

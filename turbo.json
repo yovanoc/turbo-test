@@ -1,8 +1,25 @@
 {
+	"$schema": "https://turborepo.org/schema.json",
   "pipeline": {
     "build": {
       "outputs": ["dist/**", ".next/**", "public/dist/**"],
       "dependsOn": ["^build", "$NEXT_PUBLIC_API_HOST"]
+    },
+		"database#build": {
+			"dependsOn": ["^build", "$NODE_ENV"],
+			"outputs": ["dist/**"]
+		},
+		"db:migrate:deploy": {
+      "outputs": []
+    },
+    "db:push": {
+      "outputs": []
+    },
+    "db:seed": {
+      "outputs": []
+    },
+		"generate": {
+      "dependsOn": ["^generate"]
     },
     "test": {
       "outputs": ["coverage/**"],

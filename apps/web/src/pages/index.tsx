@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "ui";
 
@@ -11,10 +12,10 @@ export default function Web() {
   useEffect(() => {
     setResponse(null);
     setError(undefined);
-  }, [name]);
+	}, [name]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setName(e.target.value);
+		setName(e.target.value);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,6 +37,7 @@ export default function Web() {
   return (
     <div>
       <h1>Web</h1>
+      <Link href="/api/users">View Users</Link>
       <form onSubmit={onSubmit}>
         <label htmlFor="name">Name </label>
         <input

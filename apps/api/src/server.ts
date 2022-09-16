@@ -1,4 +1,3 @@
-import { json, urlencoded } from "body-parser";
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
@@ -8,8 +7,8 @@ export const createServer = (): express.Express => {
   app
     .disable("x-powered-by")
     .use(morgan("dev"))
-    .use(urlencoded({ extended: true }))
-    .use(json())
+    .use(express.urlencoded({ extended: true }))
+    .use(express.json())
     .use(cors())
     .get("/message/:name", (req, res) => {
       return res.json({ message: `hello ${req.params.name}` });

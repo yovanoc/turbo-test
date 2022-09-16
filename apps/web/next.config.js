@@ -1,10 +1,18 @@
-const withTM = require("next-transpile-modules")(["ui"]);
-const path = require("path");
+const WithTM = require("next-transpile-modules");
+const { join } = require("path");
 
-module.exports = withTM({
-  reactStrictMode: true,
+const withTM = WithTM(["ui"]);
+
+/**
+ * @type {import('next').NextConfig}
+ */
+const config  = {
+	swcMinify: true,
+	reactStrictMode: true,
   output: "standalone",
   experimental: {
-    outputFileTracingRoot: path.join(__dirname, "../../"),
+    outputFileTracingRoot: join(__dirname, "../../"),
   },
-});
+};
+
+module.exports = withTM(config);
