@@ -2,7 +2,7 @@ FROM node:alpine AS builder
 RUN apk update
 # Set working directory
 WORKDIR /app
-RUN yarn global add turbo@canary
+RUN yarn global add turbo
 COPY . .
 RUN turbo prune --scope=web --docker
 
@@ -14,16 +14,15 @@ WORKDIR /app
 # First install dependencies (as they change less often)
 COPY .gitignore .gitignore
 COPY --from=builder /app/out/json/ .
-COPY --from=builder /app/out/pnpm-*.yaml .
+# COPY --from=builder /app/out/pnpm-*.yaml .
+COPY --from=builder /app/out/pnpm-lock.yaml .
+COPY --from=builder /app/out/pnpm-workspace.yaml .
 COPY .npmrc .
 RUN corepack enable
-RUN pnpm install -r --frozen-lockfile
+RUN pnpm install -r --no-frozen-lockfile
 
 # Build the project
-COPY --from=builder app/out/full/ .
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
-RUN pnpm turbo run db:migrate:deploy
+COPY --from=builder /app/out/full/ .
 RUN pnpm turbo run build --filter=web...
 
 FROM node:alpine AS runner
@@ -41,5 +40,8 @@ COPY --from=installer /app/apps/web/package.json .
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
 
 CMD node apps/web/server.js

@@ -13,7 +13,6 @@ services:
       - 3000:3000
     depends_on:
       - mysql
-    network_mode: "host"
     networks:
       - app_network
     # environment:
